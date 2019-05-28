@@ -539,9 +539,7 @@ describe('React.PropTypes to flow', () => {
         created_at?: string,
       };
 
-      class MyComponent extends React.Component {
-        props: Props;
-
+      class MyComponent extends React.Component<Props> {
         render() {
           return (
             <div />

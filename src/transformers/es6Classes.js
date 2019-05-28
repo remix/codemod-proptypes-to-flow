@@ -15,8 +15,16 @@ const isStaticPropType = p => {
   );
 };
 
-function containsFlowProps(classBody) {
-  return !!classBody.find(bodyElement => bodyElement.key.name === 'props');
+function hasTypeParameters(classBody) {
+  return !!classBody.superTypeParameters;
+  // return !!classBody.find(bodyElement =>   console.log(bodyElement.superTypeParameters) || bodyElement.superTypeParameters);
+}
+
+function addTypeParameters(j, body, name = 'Props') {
+  const type = j.genericTypeAnnotation(j.identifier(name), null);
+  if (body.superClass && !body.superTypeParameters) {
+    body.superTypeParameters = j.typeParameterInstantiation([type]);
+  }
 }
 
 /**
@@ -45,10 +53,11 @@ export default function transformEs6Classes(ast, j, options) {
 
       const classBody = p.value.body && p.value.body.body;
       if (classBody) {
-        if (containsFlowProps(classBody)) {
+        if (hasTypeParameters(p.value)) {
           return;
         }
 
+        addTypeParameters(j, p.value, propIdentifier);
         annotateConstructor(j, classBody, propIdentifier);
         const index = findIndex(classBody, isStaticPropType);
         if (typeof index !== 'undefined') {
